@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: open-bank
+
+app:
+  r2dbc:
+    url: ${OPEN_BANK_R2DBC_URL:r2dbc:postgresql://localhost:5432/api_test?schema=openbank}
+    username: ${OPEN_BANK_DB_USERNAME:api_test}
+    password: ${OPEN_BANK_DB_PASSWORD:api_test}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+server:
+  port: ${PORT:8080}
