@@ -1,7 +1,9 @@
 plugins {
     id 'java'
+    id 'idea'
     id 'org.springframework.boot' version '3.5.11'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '8.4.0'
 }
 
 group = 'com.example'
@@ -26,6 +28,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.postgresql:r2dbc-postgresql'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -37,6 +41,7 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:r2dbc'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -44,4 +49,56 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = false
+    }
+}
+
+tasks.register('downloadDependencySources') {
+    group = 'help'
+    description = 'Downloads source jars for resolvable JVM dependencies.'
+
+    doLast {
+        def sourceArtifact = dependencies.createArtifactResolutionQuery()
+                .forComponents(
+                        configurations
+                                .findAll { it.canBeResolved }
+                                .collectMany { it.incoming.resolutionResult.allComponents }
+                                .collect { it.id }
+                                .findAll { it instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier }
+                                .toSet()
+                )
+                .withArtifacts(org.gradle.jvm.JvmLibrary, org.gradle.language.base.artifact.SourcesArtifact)
+                .execute()
+
+        def resolved = 0
+        def missing = 0
+
+        sourceArtifact.resolvedComponents.each { component ->
+            component.getArtifacts(org.gradle.language.base.artifact.SourcesArtifact).each { artifact ->
+                if (artifact instanceof org.gradle.api.artifacts.result.ResolvedArtifactResult) {
+                    resolved++
+                } else {
+                    missing++
+                    logger.lifecycle("Missing sources for ${component.id.displayName}")
+                }
+            }
+        }
+
+        logger.lifecycle("Downloaded/resolved source jars: ${resolved}")
+        logger.lifecycle("Dependencies without source jars: ${missing}")
+    }
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

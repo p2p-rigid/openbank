@@ -2,35 +2,30 @@ package com.example.openbank.model;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.util.UUID;
-
 @Value
-@Builder (setterPrefix = "with", toBuilder = true)
+@Builder(setterPrefix = "with", toBuilder = true)
 @Jacksonized
 public class Account {
-    UUID accountId;
+  UUID accountId;
 
-    @Valid
-    @NotBlank
-    String accountNumber;
+  @Valid @NotBlank String accountNumber;
 
-    @NotBlank
-    String ownerName;
+  @NotBlank String ownerName;
 
-    BigDecimal balance;
+  BigDecimal balance;
 
-    @NotBlank
-    String currency;
+  @NotBlank String currency;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    ZonedDateTime createdAt;
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  ZonedDateTime createdAt;
 
-    AccountStatus status;
+  AccountStatus status;
 }

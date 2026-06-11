@@ -1,6 +1,8 @@
 spring:
   application:
     name: open-bank
+  reactor:
+    context-propagation: auto
 
 app:
   r2dbc:
@@ -17,6 +19,16 @@ management:
     health:
       probes:
         enabled: true
+  tracing:
+    baggage:
+      remote-fields: op-trace-id,op-parent-span-id,client-id,op-channel,op-span-id
+      correlation:
+        fields: trace_id,parent_span_id,clientId
+    propagation:
+      type: w3c
+
+tracing-interceptor:
+  enabled: true
 
 server:
   port: ${PORT:8080}

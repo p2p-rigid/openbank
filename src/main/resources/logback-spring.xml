@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="open-bank"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%marker] [app_name=${appName}] | trace_id=%X{trace_id} | parent_span_id=%X{parent_span_id} | span_id=%X{span_id} log_level=%-5level, event_source=%logger{36}, %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.JsonEncoder">
+            <withMDC>true</withMDC>
+            <withFormattedMessage>true</withFormattedMessage>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="JSON"/>
+    </root>
+</configuration>
