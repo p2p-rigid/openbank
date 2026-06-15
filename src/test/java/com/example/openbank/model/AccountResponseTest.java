@@ -14,8 +14,8 @@ class AccountResponseTest {
   @Test
   void shouldBuild() {
     ZonedDateTime now = ZonedDateTime.now();
-    AccountResponse response =
-        AccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
+    CreateAccountResponse response =
+        CreateAccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
 
     assertThat(response.getAccountId()).isEqualTo("acc-123");
     assertThat(response.getCreatedDate()).isEqualTo(now);
@@ -24,10 +24,10 @@ class AccountResponseTest {
   @Test
   void shouldBeEqual() {
     ZonedDateTime now = ZonedDateTime.now();
-    AccountResponse a =
-        AccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
-    AccountResponse b =
-        AccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
+    CreateAccountResponse a =
+        CreateAccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
+    CreateAccountResponse b =
+        CreateAccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
 
     assertThat(a).isEqualTo(b);
     assertThat(a.hashCode()).isEqualTo(b.hashCode());
@@ -36,10 +36,10 @@ class AccountResponseTest {
   @Test
   void shouldNotBeEqual() {
     ZonedDateTime now = ZonedDateTime.now();
-    AccountResponse a =
-        AccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
-    AccountResponse b =
-        AccountResponse.builder().withAccountId("acc-456").withCreatedDate(now).build();
+    CreateAccountResponse a =
+        CreateAccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
+    CreateAccountResponse b =
+        CreateAccountResponse.builder().withAccountId("acc-456").withCreatedDate(now).build();
 
     assertThat(a).isNotEqualTo(b);
   }
@@ -47,8 +47,8 @@ class AccountResponseTest {
   @Test
   void shouldSerializeToJson() throws Exception {
     ZonedDateTime now = ZonedDateTime.now();
-    AccountResponse response =
-        AccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
+    CreateAccountResponse response =
+        CreateAccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
 
     String json = objectMapper.writeValueAsString(response);
 
@@ -59,10 +59,10 @@ class AccountResponseTest {
   @Test
   void shouldSupportToBuilder() {
     ZonedDateTime now = ZonedDateTime.now();
-    AccountResponse original =
-        AccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
+    CreateAccountResponse original =
+        CreateAccountResponse.builder().withAccountId("acc-123").withCreatedDate(now).build();
 
-    AccountResponse modified = original.toBuilder().withAccountId("acc-999").build();
+    CreateAccountResponse modified = original.toBuilder().withAccountId("acc-999").build();
 
     assertThat(modified.getAccountId()).isEqualTo("acc-999");
     assertThat(modified.getCreatedDate()).isEqualTo(now);

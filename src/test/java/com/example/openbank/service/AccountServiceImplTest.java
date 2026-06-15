@@ -36,7 +36,7 @@ class AccountServiceImplTest {
     UUID accountId = UUID.randomUUID();
     CreateAccountContext savedAccountContext = savedAccountContext(accountId);
 
-    when(createAccountValidator.apply(createAccountContext))
+    when(createAccountValidator.validate(createAccountContext))
         .thenReturn(Mono.just(createAccountContext));
     when(accountRepository.isAccountExist(createAccountContext.getAccount().getAccountNumber()))
         .thenReturn(Mono.just(false));

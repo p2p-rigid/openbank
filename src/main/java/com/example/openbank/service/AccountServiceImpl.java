@@ -1,9 +1,10 @@
 package com.example.openbank.service;
 
 import com.example.openbank.exception.ApplicationExceptionCreator;
-import com.example.openbank.exception.OpenbankErrorDefinition;
-import com.example.openbank.model.AccountResponse;
+import com.example.openbank.exception.OpenBankErrorDefinition;
+import com.example.openbank.model.Account;
 import com.example.openbank.model.CreateAccountContext;
+import com.example.openbank.model.CreateAccountResponse;
 import com.example.openbank.repository.AccountRepository;
 import java.time.ZonedDateTime;
 import lombok.extern.slf4j.Slf4j;
@@ -25,37 +26,54 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   @Transactional
-  public Mono<AccountResponse> saveAccount(CreateAccountContext createAccountContext) {
-    final String accountNumber = createAccountContext.getAccount().getAccountNumber();
+  public Mono<CreateAccountResponse> saveAccount(CreateAccountContext createAccountContext) {
+    return Mono.just(createAccountContext)
+        .flatMap(createAccountValidator::validate)
+        .flatMap(this::checkIfAccountExist)
+        .flatMap(accountRepository::saveAccount)
+        .map(AccountServiceImpl::createAccountResponse);
+  }
 
-    return createAccountValidator
-        .apply(createAccountContext)
-        .flatMap(
-            createContext ->
-                accountRepository
-                    .isAccountExist(accountNumber)
-                    .flatMap(
-                        exist -> {
-                          if (exist)
-                            return Mono.error(
-                                ApplicationExceptionCreator.of(
-                                        OpenbankErrorDefinition.ACCOUNT_EXIST_ERROR)
-                                    .create());
-                          return accountRepository.saveAccount(createContext);
-                        })
-                    .map(
-                        savedContext ->
-                            AccountResponse.builder()
-                                .withAccountId(savedContext.getAccount().getAccountId().toString())
-                                .withCreatedDate(
-                                    savedContext.getAccount().getCreatedAt() != null
-                                        ? savedContext.getAccount().getCreatedAt()
-                                        : ZonedDateTime.now())
-                                .build()));
+  @Override
+  public Mono<Account> getAccount(String accountNumber) {
+    return accountRepository
+        .getAccount(accountNumber)
+        .switchIfEmpty(
+            Mono.error(
+                ApplicationExceptionCreator.of(OpenBankErrorDefinition.ACCOUNT_NOT_FOUND_ERROR)
+                    .withDetails("Account with account number " + accountNumber + " not found")
+                    .create()));
   }
 
   @Override
   public Mono<Boolean> isAccountExist(String accountNumber) {
     return accountRepository.isAccountExist(accountNumber);
+  }
+
+  private Mono<CreateAccountContext> checkIfAccountExist(CreateAccountContext context) {
+    final String accountNumber = context.getAccount().getAccountNumber();
+    return accountRepository
+        .isAccountExist(accountNumber)
+        .flatMap(
+            exist -> {
+              if (exist) {
+                return Mono.error(
+                    ApplicationExceptionCreator.of(OpenBankErrorDefinition.ACCOUNT_EXIST_ERROR)
+                        .withDetails(
+                            "Account with account number " + accountNumber + " already exist")
+                        .create());
+              }
+              return Mono.just(context);
+            });
+  }
+
+  private static CreateAccountResponse createAccountResponse(CreateAccountContext savedContext) {
+    return CreateAccountResponse.builder()
+        .withAccountId(savedContext.getAccount().getAccountId().toString())
+        .withCreatedDate(
+            savedContext.getAccount().getCreatedAt() != null
+                ? savedContext.getAccount().getCreatedAt()
+                : ZonedDateTime.now())
+        .build();
   }
 }

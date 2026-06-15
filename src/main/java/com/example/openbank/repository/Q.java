@@ -17,4 +17,9 @@ public class Q {
                       WHERE account_number = :account_number
                   ) AS exists
                   """;
+
+  public static final String SELECT_ACCOUNT =
+      """
+                  select * from account where account_number = :account_number
+                  """;
 }

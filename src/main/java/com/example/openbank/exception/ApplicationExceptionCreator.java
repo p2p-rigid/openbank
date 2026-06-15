@@ -1,14 +1,16 @@
 package com.example.openbank.exception;
 
 public class ApplicationExceptionCreator {
-  private final OpenbankErrorDefinition errorDefinition;
-  private Throwable throwable;
 
-  private ApplicationExceptionCreator(OpenbankErrorDefinition errorDefinition) {
+  private final OpenBankErrorDefinition errorDefinition;
+  private Throwable throwable;
+  private String details;
+
+  private ApplicationExceptionCreator(OpenBankErrorDefinition errorDefinition) {
     this.errorDefinition = errorDefinition;
   }
 
-  public static ApplicationExceptionCreator of(OpenbankErrorDefinition errorDefinition) {
+  public static ApplicationExceptionCreator of(OpenBankErrorDefinition errorDefinition) {
     return new ApplicationExceptionCreator(errorDefinition);
   }
 
@@ -17,10 +19,17 @@ public class ApplicationExceptionCreator {
     return this;
   }
 
+  public ApplicationExceptionCreator withDetails(String details) {
+    this.details = details;
+    return this;
+  }
+
   public ApplicationException create() {
-    if (throwable != null) {
-      return new ApplicationException(errorDefinition, throwable);
-    }
-    return new ApplicationException(errorDefinition);
+    return new ApplicationException(
+        errorDefinition.getCode(),
+        errorDefinition.getMessage(),
+        details,
+        errorDefinition.getHttpStatus(),
+        throwable);
   }
 }
