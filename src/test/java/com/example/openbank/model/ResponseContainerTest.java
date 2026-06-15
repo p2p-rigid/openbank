@@ -12,7 +12,8 @@ class ResponseContainerTest {
 
   @Test
   void shouldBuild() {
-    MessageItem messageItem = MessageItem.of("Test message", "TEST_CODE", "test_field");
+    MessageItem messageItem =
+        MessageItem.of("Test message", "TEST_CODE", "test_field", "test_details");
     List<MessageItem> errors = List.of(messageItem);
     ResponseContainer<String> responseContainer =
         ResponseContainer.<String>newBuild()
@@ -32,20 +33,20 @@ class ResponseContainerTest {
 
     String json =
         """
-            {
-              "data": "test data",
-              "errors": [
-                {
-                  "message": "Test message",
-                  "code": "TEST_CODE",
-                  "field": "test_field"
-                }
-              ],
-              "meta": {
-                "key": "value"
-              }
-            }
-            """;
+                        {
+                          "data": "test data",
+                          "errors": [
+                            {
+                              "message": "Test message",
+                              "code": "TEST_CODE",
+                              "field": "test_field"
+                            }
+                          ],
+                          "meta": {
+                            "key": "value"
+                          }
+                        }
+                        """;
 
     ResponseContainer<String> responseContainer =
         objectMapper.readValue(json, new TypeReference<>() {});
